@@ -1,0 +1,11 @@
+FROM  golang:1.26-alpine AS redisbuilder
+ENV GOPROXY=https://goproxy.cn,direct
+COPY go.mod go.sum ./
+RUN go mod download
+COPY main.go .
+RUN go build -o redis-server main.go
+
+FROM alpine
+WORKDIR /app
+COPY --from=redisbuilder /redis-server .
+CMD ["./redis-server"]
